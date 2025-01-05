@@ -97,10 +97,40 @@ const fetchBooksByISBN = async (isbn) => {
     return fetchWithRateLimit(url);
 };
 
+/**
+ * Fetch trending books for today.
+ * @returns {Promise<Array>} - A promise that resolves to an array of trending books.
+ */
+const fetchTrendingToday = async () => {
+    const url = `${BASE_URL}?sort=editions&limit=10`;
+    return fetchWithRateLimit(url);
+};
+
+/**
+ * Fetch trending books for this week.
+ * @returns {Promise<Array>} - A promise that resolves to an array of trending books.
+ */
+const fetchTrendingThisWeek = async () => {
+    const url = `${BASE_URL}?sort=editions&limit=10&timeframe=week`;
+    return fetchWithRateLimit(url);
+};
+
+/**
+ * Fetch trending books for this month.
+ * @returns {Promise<Array>} - A promise that resolves to an array of trending books.
+ */
+const fetchTrendingThisMonth = async () => {
+    const url = `${BASE_URL}?sort=editions&limit=10&timeframe=month`;
+    return fetchWithRateLimit(url);
+};
+
 module.exports = {
     fetchBooks,
     fetchSuggestions,
     fetchAuthors,
     fetchBooksByYear,
-    fetchBooksByISBN
+    fetchBooksByISBN,
+    fetchTrendingToday,
+    fetchTrendingThisWeek,
+    fetchTrendingThisMonth
 };

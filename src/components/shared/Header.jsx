@@ -13,21 +13,17 @@ const Header = () => {
 
   const { user, signOut } = useAuth();
 
-  // get the current user auth state and update the dropdown menu
+  // get the current user auth state and update whether the dropdown is visible or the login/sign up buttons are visible 
   useEffect(() => {
-    if (!user) {
+    if (user) {
       setDropdownOpen(false);
-    }
-    else if (user) {
-      setDropdownOpen(true);
-    }
-    else {
+    } else {
       setDropdownOpen(false);
     }
   }, [user]);
 
   return (
-    <header className="bg-white">
+    <header className="bg-white sticky z-20">
       <div className="max-w px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-2">
