@@ -13,8 +13,10 @@ export default function Layout() {
       <Header className="z-20" />
 
       <div className="flex-1 relative z-10 overflow-y-auto">
-        <Outlet />
-        <Footer />
+        <div className="flex-1 z-10 min-h-screen bg-gradient-to-b from-transparent to-gray-100 via gray-100 via-80%">
+          <Outlet />
+        </div>
+        <Footer className="z-20" />
       </div>
     </div>
   );

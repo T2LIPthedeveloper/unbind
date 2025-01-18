@@ -15,8 +15,12 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext"; // Import useAuth and AuthProvider
 import FAQPage from "./pages/FAQPage";
 import BlogPage from "./pages/BlogPage";
+import { useEffect } from "react";
 
 function App() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  });
   return (
     <AuthProvider>
       <Router>
@@ -25,7 +29,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/home" element={<HomePage />} />
-            <Route path="/book:id" element={<BookPage />} />
+            <Route path="/books/:id" element={<BookPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/search/:query" element={<SearchPage />} />
             <Route path="/search" element={<SearchPage />} />
@@ -35,10 +39,7 @@ function App() {
 
           {/* Route requiring authentication */}
           <Route path="/" element={<Layout />}>
-            <Route
-              path="/profile"
-              element={<PrivateRoute component={ProfilePage} />}
-            />
+            <Route path="/profile" element={<PrivateRoute />} />
           </Route>
 
           {/* Login route */}

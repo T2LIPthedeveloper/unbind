@@ -23,13 +23,12 @@ const ItemCarousel = ({ cardType: CardType, content, heading }) => {
       <div className="w-full md:w-11/12 mx-auto relative">
         {heading && <h2 className="text-2xl font-serif font-bold mx-4 px-4 py-2">{heading}</h2>}
         <div className="flex items-center p-1">
-          {/* Left arrow */}
           {canScrollLeft && (
             <button
               className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full border-double border-2 border-teal-500"
               onClick={() =>
                 containerRef.current.scrollBy({
-                  left: -containerRef.current.firstChild.offsetWidth,
+                  left: -containerRef.current.firstChild.offsetWidth - 14,
                   behavior: 'smooth',
                 })
               }
@@ -39,7 +38,7 @@ const ItemCarousel = ({ cardType: CardType, content, heading }) => {
           )}
 
           <div
-            className="flex overflow-x-auto space-x-4 no-scrollbar snap-x snap-mandatory mx-8"
+            className="flex overflow-x-auto space-x-4 no-scrollbar snap-x snap-mandatory mx-8 w-full"
             ref={containerRef}
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
@@ -59,7 +58,7 @@ const ItemCarousel = ({ cardType: CardType, content, heading }) => {
               className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full border-double border-4 border-teal-500"
               onClick={() =>
                 containerRef.current.scrollBy({
-                  left: containerRef.current.firstChild.offsetWidth,
+                  left: containerRef.current.firstChild.offsetWidth + 14,
                   behavior: 'smooth',
                 })
               }

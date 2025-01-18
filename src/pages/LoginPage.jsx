@@ -3,30 +3,34 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-    const { isSignUp, setIsSignUp, currentUser } = useAuth();
+    const { signIn, signUp, isSignUp, setIsSignUp, currentUser } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { signIn, signUp } = useAuth();
+    const [userName, setUserName] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [error, setError] = useState(""); // State to store error message
     const navigate = useNavigate();
 
     const handleAuth = async () => {
-        try {
-            setError(""); // Clear previous error message
-            if (isSignUp) {
-                await signUp(email, password, firstName, lastName);
-                console.log("User signed up");
-            } else {
-                await signIn(email, password);
-                console.log("User signed in");
-            }
-            navigate("/home");
-        } catch (error) {
-            console.error("Error:", error.message);
-            setError(error.message); // Set error message
-        }
+        setError(""); // Clear previous error message
+        const authPromise = isSignUp
+            ? signUp(email, password, firstName, lastName, userName)
+            : signIn(email, password);
+
+        authPromise
+            .then(() => {
+                console.log(isSignUp ? "User signed up" : "User signed in");
+                navigate("/home");
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                if (error.message) {
+                    setError(error.message); // Set error message from response
+                } else {
+                    setError("An unexpected error occurred. Please try again."); // Set generic error message
+                }
+            });
     };
 
     useEffect(() => {
@@ -36,7 +40,7 @@ const LoginPage = () => {
     }, [currentUser, navigate]);
 
     return (
-        <section className="bg-white">
+        <section className="bg-white transition-full">
             <div className="flex min-h-screen">
                 <div className="hidden lg:block lg:w-5/12 bg-gray-200">
                     <img
@@ -45,7 +49,7 @@ const LoginPage = () => {
                         className="object-cover w-full h-full"
                     />
                 </div>
-                <main className="flex flex-col items-center justify-center lg:w-7/12 px-8 py-8 sm:px-12 lg:px-16 lg:py-12">
+                <main className="flex flex-col items-center justify-center lg:w-7/12 px-8 py-8 sm:px-12 lg:px-16 lg:py-12 transition-full">
                     <div className="max-w-xl lg:max-w-3xl">
                         <div className="absolute top-4 right-4">
                             <button
@@ -70,7 +74,7 @@ const LoginPage = () => {
                             className="mt-8 space-y-6"
                         >
                             {isSignUp && (
-                                <>
+                                <div className="flex flex-col space-y-4 transition-opacity duration-500 ease-in-out">
                                     <div className="flex space-x-6">
                                         <div className="flex-1">
                                             <label
@@ -105,7 +109,23 @@ const LoginPage = () => {
                                             />
                                         </div>
                                     </div>
-                                </>
+                                    <div className="w-full">
+                                        <label
+                                            htmlFor="Username"
+                                            className="block text-sm font-medium text-gray-700"
+                                        >
+                                            Username
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="Username"
+                                            name="username"
+                                            value={userName}
+                                            onChange={(e) => setUserName(e.target.value)}
+                                            className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
+                                        />
+                                    </div>
+                                </div>
                             )}
                             <div className="flex flex-col space-y-4">
                                 <div className="w-full">
@@ -143,23 +163,20 @@ const LoginPage = () => {
                             </div>
                             <div className="w-full">
                                 <p className="text-sm text-gray-500">
-                                    By creating an account, you agree to our
+                                    By creating an account, you agree to our{" "}
                                     <span className="text-gray-700 underline">
-                                        {" "}
-                                        terms and conditions{" "}
+                                        terms and conditions
                                     </span>
-                                    and
+                                    {" "}and{" "}
                                     <span className="text-gray-700 underline">
-                                        {" "}
-                                        privacy policy{" "}
+                                        
+                                        privacy policy
                                     </span>
                                     .
                                 </p>
                             </div>
                             {error && (
-                                <div className="w-full text-red-500 text-sm">
-                                    {error}
-                                </div>
+                                <div className="block w-full text-red-500 text-sm p-2 bg-red-50 font-medium rounded-md">{error + "."}</div>
                             )}
                             <div className="w-full sm:flex sm:items-center sm:gap-4">
                                 <button
@@ -175,7 +192,7 @@ const LoginPage = () => {
                                             Already have an account?{" "}
                                             <span
                                                 onClick={() => setIsSignUp(false)}
-                                                className="text-gray-700 underline cursor-pointer"
+                                                className="text-gray-700 underline cursor-pointer transition-opacity duration-500 ease-in-out"
                                             >
                                                 Log in
                                             </span>
@@ -186,7 +203,7 @@ const LoginPage = () => {
                                             Don't have an account?{" "}
                                             <span
                                                 onClick={() => setIsSignUp(true)}
-                                                className="text-gray-700 underline cursor-pointer"
+                                                className="text-gray-700 underline cursor-pointer transition-opacity duration-500 ease-in-out"
                                             >
                                                 Sign up
                                             </span>

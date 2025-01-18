@@ -1,17 +1,39 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { debounce, fetchWithDelay } from "../../lib/utils/search_utils";
+import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 
 const Search = () => {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const searchRef = useRef(null);
+
+    useEffect(() => {
+        if (location.pathname.startsWith("/search")) {
+            setSuggestions([]);
+        }
+    }, [location.pathname]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setSuggestions([]);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleInputChange = (e) => {
         const value = e.target.value;
         setQuery(value);
 
-        if (value.length > 2) {
+        if (value.length > 2 && !location.pathname.startsWith("/search")) {
             debounceFetchSuggestions(value);
         } else {
             setSuggestions([]);
@@ -20,7 +42,9 @@ const Search = () => {
 
     const handleKeyPress = (e) => {
         if (e.key === "Enter") {
-            navigate(`/search?query=${query}`);
+            navigate(query ? `/search?query=${query}` : "/search");
+            setSuggestions([]);
+            setQuery("");
         }
     };
 
@@ -39,11 +63,11 @@ const Search = () => {
         setQuery(suggestion);
         setSuggestions([]);
         navigate(`/search?query=${suggestion}`);
+        setQuery("");
     };
 
     return (
-        <div className="relative flex items-center w-full max-w-sm">
-            {/* Input Box */}
+        <div ref={searchRef} className="relative flex items-center w-full max-w-sm">
             <input
                 type="text"
                 value={query}
@@ -52,18 +76,18 @@ const Search = () => {
                 placeholder="Search for books..."
                 className="w-full rounded-md border-gray-200 py-2.5 pr-10 text-sm xl:text-md lg:text-md shadow-sm font-serif"
             />
-
-            {/* Search Button Icon */}
             <span className="absolute inset-y-0 right-0 flex items-center justify-center w-10">
-                <button type="button" className="text-gray-600 hover:text-gray-700">
+                <button type="button" onClick={() => {
+                    navigate(query ? `/search?query=${query}` : "/search");
+                    setSuggestions([]);
+                }} className="text-gray-600 hover:text-gray-700">
                     <span className="sr-only">Search</span>
-
-                    {/* Placeholder for Search Icon */}
-                    <div className="h-6 w-6 bg-gray-300"></div>
+                    <div className="h-6 w-6">
+                        <MagnifyingGlassIcon className="h-6 w-6 text-gray-700" />
+                    </div>
                 </button>
             </span>
-
-            {/* Suggestions Dropdown */}
+            {/* Suggestions */}
             {suggestions.length > 0 && (
                 <ul className="absolute top-full left-0 w-full mt-1 bg-white border rounded-md shadow-md font-serif">
                     {suggestions.slice(0, 5).map((suggestion) => (

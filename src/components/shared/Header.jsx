@@ -1,56 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import Search from "./Search"; // Make sure the Search component is correctly imported
+import Search from "./Search";
+import ProfileDropdown from "./ProfileDropdown";
+import { BookOpenIcon } from "@heroicons/react/20/solid";
+import {
+  Bars3Icon,
+  ArrowLeftStartOnRectangleIcon,
+} from "@heroicons/react/24/solid";
 
 const Header = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { setIsSignUp } = useAuth(); 
+  const { user, setIsSignUp, signOut } = useAuth();
 
-  const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
-  const { user, signOut } = useAuth();
-
-  // get the current user auth state and update whether the dropdown is visible or the login/sign up buttons are visible 
-  useEffect(() => {
-    if (user) {
-      setDropdownOpen(false);
-    } else {
-      setDropdownOpen(false);
-    }
-  }, [user]);
-
   return (
-    <header className="bg-white sticky z-20">
+    <header className="bg-white sticky z-20 shadow-md">
       <div className="max-w px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-2">
             <Link className="text-teal-600 flex items-center" to="/home">
               <span className="sr-only">Home</span>
-              <div className="h-8 w-8 bg-gray-300 rounded-full"></div>
+              <div className="h-8 w-8 p-1 bg-teal-600 rounded-full">
+                <BookOpenIcon className="text-white" />
+              </div>
               <div className="ml-2 text-lg lg:text-2xl xl:text-3xl sm:text-lg md:text-xl font-serif font-bold">
                 Unbind
               </div>
             </Link>
           </div>
 
-          {/* Search Section */}
           <div className="flex-1 px-4 sm:px-6">
-            <Search /> {/* Include the Search component */}
+            <Search />
           </div>
 
-          {/* Navigation and Profile Section */}
           <div className="flex items-center space-x-6">
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6 text-sm">
-              <Link
-                to="/search"
-                className="text-gray-500 transition hover:text-gray-500/75"
-              >
-                Advanced Search
-              </Link>
               <Link
                 to="/about"
                 className="text-gray-500 transition hover:text-gray-500/75"
@@ -66,61 +52,11 @@ const Header = () => {
             </nav>
 
             {user ? (
-              <>
-                {/* Profile Button (Desktop Only) */}
-                <div className="relative hidden md:block">
-                  <button
-                    type="button"
-                    className="overflow-hidden rounded-full border border-gray-300 shadow-inner"
-                    onClick={toggleDropdown}
-                  >
-                    <span className="sr-only">Toggle dashboard menu</span>
-                    {/* Placeholder for Profile Image */}
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  <div
-                    className={`absolute right-0 z-10 mt-0.5 w-56 divide-y divide-gray-100 rounded-md border border-gray-100 bg-white shadow-lg ${
-                      dropdownOpen ? "block" : "hidden"
-                    }`}
-                  >
-                    <div className="p-2">
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                      >
-                        My profile
-                      </Link>
-                      <Link
-                        to="/lists"
-                        className="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                      >
-                        My lists
-                      </Link>
-                      <Link
-                        to="/reviews"
-                        className="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-                      >
-                        My reviews
-                      </Link>
-                    </div>
-                    <div className="p-2">
-                      <button
-                        type="button"
-                        onClick={signOut}
-                        className="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-sm text-red-700 hover:bg-red-50"
-                      >
-                        {/* Placeholder for Logout Icon */}
-                        <div className="w-4 h-4 bg-gray-300"></div>
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </>
+              <div className="hidden md:flex">
+                <ProfileDropdown />
+              </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="hidden md:flex items-center space-x-4">
                 <Link
                   to="/login"
                   onClick={() => setIsSignUp(false)}
@@ -138,35 +74,28 @@ const Header = () => {
               </div>
             )}
 
-            {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
               className="md:hidden p-2 text-gray-600 transition hover:text-gray-600/75"
             >
-              {/* Placeholder for Mobile Menu Icon */}
-              <div className="h-5 w-5 bg-gray-300"></div>
+              <Bars3Icon className="h-6 w-6" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <div className={`md:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
         <nav className="flex flex-col items-center space-y-4 bg-white px-4 py-6">
           <Link
-            to="/search"
-            className="text-gray-500 transition hover:text-gray-500/75"
-          >
-            Advanced Search
-          </Link>
-          <Link
             to="/about"
+            onClick={toggleMobileMenu}
             className="text-gray-500 transition hover:text-gray-500/75"
           >
             About
           </Link>
           <Link
             to="/blog"
+            onClick={toggleMobileMenu}
             className="text-gray-500 transition hover:text-gray-500/75"
           >
             Blog
@@ -175,28 +104,25 @@ const Header = () => {
             <>
               <Link
                 to="/profile"
+                onClick={toggleMobileMenu}
                 className="text-gray-500 transition hover:text-gray-500/75"
               >
                 My profile
               </Link>
               <Link
-                to="/lists"
+                to="/settings"
+                onClick={toggleMobileMenu}
                 className="text-gray-500 transition hover:text-gray-500/75"
               >
-                My lists
-              </Link>
-              <Link
-                to="/reviews"
-                className="text-gray-500 transition hover:text-gray-500/75"
-              >
-                My reviews
+                Settings
               </Link>
               <button
                 type="button"
-                onClick={signOut}
-                className="w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                onClick={() => signOut()}
+                className="w-full px-4 py-2 text-sm text-red-700 hover:bg-red-50 flex items-center justify-center space-x-2 hover:rounded"
               >
-                Logout
+                <ArrowLeftStartOnRectangleIcon className="w-4 h-4" />
+                <span>Logout</span>
               </button>
             </>
           ) : (
