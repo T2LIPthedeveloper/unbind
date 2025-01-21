@@ -10,7 +10,7 @@ export const useTrendingBooks = ( timeframe ) => {
   });
 };
 
-export const useSearchBooks = (query, pageSize = 30) => {
+export const useSearchBooks = (query, pageSize = 20) => {
   return useInfiniteQuery({
     queryKey: ['searchBooks', query],
     queryFn: ({ pageParam = 0 }) => fetchSearchBooks({

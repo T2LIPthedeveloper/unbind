@@ -130,11 +130,20 @@ export const AuthProvider = ({ children }) => {
     const fileExt = file.name.split(".").pop().toLowerCase();
     const fileName = `${user.user_metadata.username}.${fileExt}`;
     const filePath = `avatars/${fileName}`;
+    // If the user already has a profile picture, delete the existing file
+    if (user.profile_picture) {
+      const existingFileName = user.profile_picture.split("/").pop();
+      const existingFilePath = `avatars/${existingFileName}`;
+      await supabase.storage.from("avatars").remove([existingFilePath]);
 
-    // Upload file to Supabase Storage, replacing any existing file
+      // Delete the local URL to prevent memory leaks
+      const localUrl = URL.createObjectURL(file);
+      URL.revokeObjectURL(localUrl);
+    }
+    // Upload file to Supabase Storage, replacing any existing file  
     const { error } = await supabase.storage
       .from("avatars")
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, { cacheControl: "3600" });
 
     if (error) {
       throw new Error(`Failed to upload profile picture: ${error.message}`);
@@ -324,13 +333,47 @@ export const AuthProvider = ({ children }) => {
       .eq("user_id", user.id);
     if (deleteExistingError) throw deleteExistingError;
 
-    // Insert the book into the target list
-    const { error: insertError } = await supabase.from(toList).insert({
+    // Prepare the data for insertion into the target list
+    const newData = {
       ...data,
       date_added: new Date(),
       ...(toList === "read_books" && { end_date: new Date() }),
       ...(toList === "currently_reading" && { start_date: new Date() }),
-    });
+    };
+    console.log("Updates:", updates);
+
+    // updates from read_books
+    if (fromList === "read_books") {
+      if (toList === "currently_reading" || toList === "wishlist_books") {
+        delete newData.end_date;
+      }
+      if (toList === "wishlist_books") {
+        delete newData.start_date;
+      }
+    }
+
+    // updates from currently_reading
+    if (fromList === "currently_reading") {
+      if (toList === "wishlist_books") {
+        delete newData.start_date;
+      }
+      if (toList === "read_books") {
+        newData.end_date = updates.end_date;
+      }
+    }
+
+    // updates from wishlist_books
+    if (fromList === "wishlist_books") {
+      if (toList === "currently_reading" || toList === "read_books") {
+        newData.start_date = updates.start_date;
+      }
+      if (toList === "read_books") {
+        newData.end_date = updates.end_date;
+      }
+    }
+
+    // Insert the book into the target list
+    const { error: insertError } = await supabase.from(toList).insert(newData);
     if (insertError) throw insertError;
 
     // Delete the book from the original list
@@ -442,23 +485,6 @@ export const AuthProvider = ({ children }) => {
     if (error) throw error;
   };
 
-  // Blog CRUD operations
-  /*
-    blog_posts schema:
-    - id: UUID
-    - user_id: UUID (foreign key to profiles)
-    - created_at: date
-    - title: text
-    - content: text
-
-    comments schema:
-    - id: UUID
-    - user_id: UUID (foreign key to profiles)
-    - content: text
-    - created_at: date
-    - post_id: UUID (foreign key to blog_posts)
-    */
-
   const fetchAllBlogPosts = async () => {
     const { data, error } = await supabase
       .from("blog_posts")
@@ -561,6 +587,7 @@ export const AuthProvider = ({ children }) => {
           post_id: postId,
           content: content.trim(),
           created_at: new Date(),
+          author: user.user_metadata.username,
         })
         .select()
         .single();

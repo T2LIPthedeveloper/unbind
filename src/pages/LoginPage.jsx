@@ -44,7 +44,7 @@ const LoginPage = () => {
             <div className="flex min-h-screen">
                 <div className="hidden lg:block lg:w-5/12 bg-gray-200">
                     <img
-                        src="https://picsum.photos/1200/1600"
+                        src="https://images.pexels.com/photos/1130980/pexels-photo-1130980.jpeg"
                         alt="Book Collection"
                         className="object-cover w-full h-full"
                     />

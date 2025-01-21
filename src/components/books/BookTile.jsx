@@ -3,8 +3,24 @@ import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { fetchSearchBooks } from '../../lib/api/openLibrary';
 
-const BookTile = ({ title, image, author, year_published, link }) => {
+const BookTile = ({ title, image, author, year_published, link, book_title, book_author, cover_image, date_added, book_code }) => {
   const queryClient = useQueryClient();
+
+  if (book_title) {
+    title = book_title;
+  }
+  if (cover_image) {
+    image = cover_image;
+  }
+  if (book_author) {
+    author = book_author;
+  }
+  if (date_added) {
+    year_published = new Date(date_added).getFullYear();
+  }
+  if (book_code) {
+    link = `/book/${book_code}`;
+  }
 
   const prefetchLink = () => {
     queryClient.prefetchQuery(['searchBooks', link], () =>

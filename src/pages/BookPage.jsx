@@ -111,9 +111,15 @@ const BookPage = () => {
         const allLists = userLists;
 
         // Check each list for the book
-        for (const listType of ["currently_reading", "read_books", "wishlist_books"]) {
+        for (const listType of [
+          "currently_reading",
+          "read_books",
+          "wishlist_books",
+        ]) {
           const listData = allLists[listType];
-          const bookFound = listData?.some((item) => item.book_code === bookCode);
+          const bookFound = listData?.some(
+            (item) => item.book_code === bookCode
+          );
 
           if (bookFound) {
             setActiveList(listType);
@@ -269,7 +275,7 @@ const BookPage = () => {
                 </div>
                 {/* Book Info */}
                 <div className="flex-grow">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                  <h1 className="text-4xl font-serif font-bold text-gray-900 mb-4">
                     {book.title}
                   </h1>
                   <div className="flex items-center gap-4 mb-4">
@@ -288,164 +294,171 @@ const BookPage = () => {
                   </div>
                   <div className="flex flex-wrap gap-4 mb-6">
                     {/* List Button */}
-                    <div className="relative">
-                      <button
-                        className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                          activeList
-                            ? "bg-teal-700"
-                            : "bg-teal-600 hover:bg-teal-700"
-                        } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-                        onClick={() => setShowListDropdown(!showListDropdown)}
-                        disabled={loading}
-                      >
-                        <BookmarkIcon className="h-5 w-5 mr-2" />
-                        {activeList
-                          ? `In ${lists.find((l) => l.id === activeList)?.name}`
-                          : "Add to List"}
-                      </button>
+                    {user && (
+                      <div className="relative">
+                        <button
+                          className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                            activeList
+                              ? "bg-teal-700"
+                              : "bg-teal-600 hover:bg-teal-700"
+                          } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                          onClick={() => setShowListDropdown(!showListDropdown)}
+                          disabled={loading}
+                        >
+                          <BookmarkIcon className="h-5 w-5 mr-2" />
+                          {activeList
+                            ? `In ${
+                                lists.find((l) => l.id === activeList)?.name
+                              }`
+                            : "Add to List"}
+                        </button>
 
-                      {showListDropdown && (
-                        <div className="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                          <div className="py-1">
-                            {lists.map((list) => (
-                              <button
-                                key={list.id}
-                                className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between ${
-                                  activeList === list.id
-                                    ? "bg-teal-50 text-teal-700"
-                                    : "text-gray-700 hover:bg-teal-50"
-                                }`}
-                                onClick={() => handleListClick(list.id)}
-                                disabled={loading}
-                              >
-                                <span className="flex items-center">
-                                  <span className="mr-2">{list.icon}</span>
-                                  {list.name}
-                                </span>
-                                {activeList === list.id && (
-                                  <CheckCircleIcon className="h-5 w-5 text-teal-600" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {/* Modal */}
-                      {showModal && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                            <div className="flex justify-between items-center mb-4">
-                              <h3 className="text-lg font-medium">
-                                Add to{" "}
-                                {lists.find((l) => l.id === selectedList)?.name}
-                              </h3>
-                              <button
-                                onClick={() => setShowModal(false)}
-                                className="text-gray-400 hover:text-gray-500"
-                              >
-                                <XMarkIcon className="h-6 w-6" />
-                              </button>
-                            </div>
-
-                            <form
-                              onSubmit={handleSubmitDetails}
-                              className="space-y-4"
-                            >
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                  Book Type
-                                </label>
-                                <select
-                                  value={bookDetails.bookType}
-                                  onChange={(e) =>
-                                    setBookDetails({
-                                      ...bookDetails,
-                                      bookType: e.target.value,
-                                    })
-                                  }
-                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                        {showListDropdown && (
+                          <div className="absolute z-10 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div className="py-1">
+                              {lists.map((list) => (
+                                <button
+                                  key={list.id}
+                                  className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between ${
+                                    activeList === list.id
+                                      ? "bg-teal-50 text-teal-700"
+                                      : "text-gray-700 hover:bg-teal-50"
+                                  }`}
+                                  onClick={() => handleListClick(list.id)}
+                                  disabled={loading}
                                 >
-                                  <option value="physical">
-                                    Physical Book
-                                  </option>
-                                  <option value="ebook">E-Book</option>
-                                  <option value="audiobook">Audiobook</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                  Start Date
-                                </label>
-                                <input
-                                  type="date"
-                                  value={bookDetails.startDate}
-                                  onChange={(e) =>
-                                    setBookDetails({
-                                      ...bookDetails,
-                                      startDate: e.target.value,
-                                    })
+                                  <span className="flex items-center">
+                                    <span className="mr-2">{list.icon}</span>
+                                    {list.name}
+                                  </span>
+                                  {activeList === list.id && (
+                                    <CheckCircleIcon className="h-5 w-5 text-teal-600" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {/* Modal */}
+                        {showModal && (
+                          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                              <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-medium">
+                                  Add to{" "}
+                                  {
+                                    lists.find((l) => l.id === selectedList)
+                                      ?.name
                                   }
-                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                                />
+                                </h3>
+                                <button
+                                  onClick={() => setShowModal(false)}
+                                  className="text-gray-400 hover:text-gray-500"
+                                >
+                                  <XMarkIcon className="h-6 w-6" />
+                                </button>
                               </div>
 
-                              {selectedList === "read_books" && (
+                              <form
+                                onSubmit={handleSubmitDetails}
+                                className="space-y-4"
+                              >
                                 <div>
                                   <label className="block text-sm font-medium text-gray-700">
-                                    End Date
+                                    Book Type
                                   </label>
-                                  <input
-                                    type="date"
-                                    value={bookDetails.endDate}
+                                  <select
+                                    value={bookDetails.bookType}
                                     onChange={(e) =>
                                       setBookDetails({
                                         ...bookDetails,
-                                        endDate: e.target.value,
+                                        bookType: e.target.value,
+                                      })
+                                    }
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                                  >
+                                    <option value="physical">
+                                      Physical Book
+                                    </option>
+                                    <option value="ebook">E-Book</option>
+                                    <option value="audiobook">Audiobook</option>
+                                  </select>
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700">
+                                    Start Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={bookDetails.startDate}
+                                    onChange={(e) =>
+                                      setBookDetails({
+                                        ...bookDetails,
+                                        startDate: e.target.value,
                                       })
                                     }
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
                                   />
                                 </div>
-                              )}
 
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                  Notes
-                                </label>
-                                <textarea
-                                  value={bookDetails.note}
-                                  onChange={(e) =>
-                                    setBookDetails({
-                                      ...bookDetails,
-                                      note: e.target.value,
-                                    })
-                                  }
-                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
-                                  rows="3"
-                                />
-                              </div>
+                                {selectedList === "read_books" && (
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                      End Date
+                                    </label>
+                                    <input
+                                      type="date"
+                                      value={bookDetails.endDate}
+                                      onChange={(e) =>
+                                        setBookDetails({
+                                          ...bookDetails,
+                                          endDate: e.target.value,
+                                        })
+                                      }
+                                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                                    />
+                                  </div>
+                                )}
 
-                              <div className="flex justify-end space-x-3">
-                                <button
-                                  type="button"
-                                  onClick={() => setShowModal(false)}
-                                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
-                                >
-                                  Cancel
-                                </button>
-                                <button
-                                  type="submit"
-                                  className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md"
-                                >
-                                  Add to List
-                                </button>
-                              </div>
-                            </form>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700">
+                                    Notes
+                                  </label>
+                                  <textarea
+                                    value={bookDetails.note}
+                                    onChange={(e) =>
+                                      setBookDetails({
+                                        ...bookDetails,
+                                        note: e.target.value,
+                                      })
+                                    }
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500"
+                                    rows="3"
+                                  />
+                                </div>
+
+                                <div className="flex justify-end space-x-3">
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowModal(false)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    type="submit"
+                                    className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-md"
+                                  >
+                                    Add to List
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    )}
                     {book.ia && (
                       <a
                         href={`https://archive.org/details/${book.ia[0]}`}
@@ -469,7 +482,7 @@ const BookPage = () => {
             <div className="lg:col-span-2 space-y-8">
               {/* Description */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                <h2 className="text-2xl font-serif font-bold text-gray-900 mb-4">
                   About the Book
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
@@ -480,7 +493,7 @@ const BookPage = () => {
               </section>
               {/* Subjects */}
               <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                <h2 className="text-2xl font-serif font-bold text-gray-900 mb-4">
                   Subjects
                 </h2>
                 <div className="flex flex-wrap gap-2">

@@ -1,45 +1,13 @@
-import { useState } from "react";
 import { UserCircleIcon, TrashIcon } from "@heroicons/react/20/solid";
 
 const Comments = ({
     comments,
-    postId,
-    onAddComment,
     onDeleteComment,
-    isLoading,
     user,
   }) => {
-    const [newComment, setNewComment] = useState("");
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      if (newComment.trim()) {
-        onAddComment(newComment);
-        setNewComment("");
-      }
-    };
   
     return (
       <div className="space-y-4">
-        {user && (
-          <form onSubmit={handleSubmit} className="space-y-2">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write a comment..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-              rows="3"
-            />
-            <button
-              type="submit"
-              disabled={isLoading || !newComment.trim()}
-              className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors disabled:bg-gray-300"
-            >
-              {isLoading ? "Posting..." : "Post Comment"}
-            </button>
-          </form>
-        )}
-  
         <div className="space-y-4">
           {comments.map((comment) => (
             <div key={comment.id} className="bg-white p-4 rounded-lg shadow-sm">

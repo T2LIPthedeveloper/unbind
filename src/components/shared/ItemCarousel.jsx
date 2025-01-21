@@ -25,7 +25,7 @@ const ItemCarousel = ({ cardType: CardType, content, heading }) => {
         <div className="flex items-center p-1">
           {canScrollLeft && (
             <button
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full border-double border-2 border-teal-500"
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full border border-2 border-teal-500"
               onClick={() =>
                 containerRef.current.scrollBy({
                   left: -containerRef.current.firstChild.offsetWidth - 14,
@@ -44,7 +44,7 @@ const ItemCarousel = ({ cardType: CardType, content, heading }) => {
           >
             {content.map((item, index) => (
               <div
-                className="flex-none w-1/4 sm:w-1/4 md:w-1/5 lg:w-1/6 xl:w-1/7"
+                className="flex-none w-1/1 xs:1/2 sm:w-1/4 md:w-1/5 lg:w-1/6 xl:w-1/7"
                 key={index}
               >
                 <CardType {...item} />
@@ -55,7 +55,7 @@ const ItemCarousel = ({ cardType: CardType, content, heading }) => {
           {/* Right arrow */}
           {canScrollRight && (
             <button
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full border-double border-4 border-teal-500"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-1 rounded-full border border-2 border-teal-500"
               onClick={() =>
                 containerRef.current.scrollBy({
                   left: containerRef.current.firstChild.offsetWidth + 14,

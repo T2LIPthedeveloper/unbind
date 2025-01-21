@@ -8,14 +8,14 @@ import {
 import BlogPost from "../components/blog/BlogPost";
 
 const BlogPage = () => {
-  const { user, useBlogPosts, addComment, deleteComment, createBlogPost, useComments } =
+  const { user, useBlogPosts, createBlogPost, useComments } =
     useAuth();
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "" });
   const queryClient = useQueryClient();
-  const { data: posts, error: postError, isLoading: postLoading, post_count } = useBlogPosts();
+  const { data: posts, isLoading: postLoading, post_count } = useBlogPosts();
   console.log(posts);
-  const { data: comments, error: commentError, isLoading: commentLoading } = useComments();
+  const { isLoading: commentLoading } = useComments();
 
   const createPostMutation = useMutation({
     mutationFn: ({ title, content }) => createBlogPost(title, content),

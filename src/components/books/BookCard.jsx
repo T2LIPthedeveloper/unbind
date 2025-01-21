@@ -84,23 +84,16 @@ const BookCard = ({ book, list }) => {
       setIsLoading(true);
       
       const updates = {
+        book_type: bookDetails.bookType,
         note: bookDetails.note,
       };
 
-      if (list === 'currently_reading' || list === 'read_books') {
-        updates.book_type = bookDetails.bookType;
+      if (bookDetails.startDate) {
+        updates.start_date = bookDetails.startDate;
       }
 
-      if (list === 'currently_reading' || list === 'read_books') {
-        if (bookDetails.startDate) {
-          updates.start_date = bookDetails.startDate;
-        }
-      }
-
-      if (list === 'read_books') {
-        if (bookDetails.endDate) {
-          updates.end_date = bookDetails.endDate;
-        }
+      if (bookDetails.endDate) {
+        updates.end_date = bookDetails.endDate;
       }
 
       await updateBookInList(list, book.book_code, updates);
