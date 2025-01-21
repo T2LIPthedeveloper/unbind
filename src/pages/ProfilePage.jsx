@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   BookOpenIcon,
-  StarIcon,
   PencilIcon,
-  UserCircleIcon,
-  CalendarIcon,
   ClockIcon,
   HeartIcon,
   UserIcon,
@@ -12,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import BookCard from "../components/books/BookCard";
 import { useAuth } from "../context/AuthContext";
+import BlogPost from "../components/blog/BlogPost";
 
 const userInfoInitial = {
   username: "BookLover123",
@@ -29,34 +27,64 @@ const userInfoInitial = {
 // Main Profile Page Component
 const ProfilePage = () => {
   const [activeContentTab, setActiveContentTab] = useState("lists");
-  const [currentlyReading, setCurrentlyReading] = useState([{
-    id: 12345,
-    title: "Do you not wish for books?",
-    image:
-      "https://placehold.co/1000x1000?text=No+books+currently+being+read",
-    author: "Go read a book!",
-  }]);
+  const [currentlyReading, setCurrentlyReading] = useState([
+    {
+      id: 12345,
+      book_title: "Do you not wish for books?",
+      cover_image:
+        "https://placehold.co/1000x1000?text=No+books+currently+being+read",
+      book_author: "Go read a book!",
+    },
+  ]);
   const [follow, setFollow] = useState([0, 0]);
-  const [readBooks, setReadBooks] = useState([{
-    id: 12345,
-    title: "Do you not wish for books?",
-    image:
-      "https://placehold.co/1000x1000?text=No+books+currently+being+read",
-    author: "Go read a book!",
-  }]);
-  const [wishlistBooks, setWishlistBooks] = useState([{
-    id: 12345,
-    title: "Do you not wish for books?",
-    image:
-      "https://placehold.co/1000x1000?text=No+books+currently+being+read",
-    author: "Go read a book!",
-  }]);
+  const [readBooks, setReadBooks] = useState([
+    {
+      id: 12345,
+      book_title: "Do you not wish for books?",
+      cover_image:
+        "https://placehold.co/1000x1000?text=No+books+currently+being+read",
+      book_author: "Go read a book!",
+    },
+  ]);
+  const [wishlistBooks, setWishlistBooks] = useState([
+    {
+      id: 12345,
+      book_title: "Do you not wish for books?",
+      cover_image:
+        "https://placehold.co/1000x1000?text=No+books+currently+being+read",
+      book_author: "Go read a book!",
+    },
+  ]);
+  const [userBlogPosts, setUserBlogPosts] = useState([
+    {
+      id: 1,
+      title: "Why '1984' Remains Relevant Today",
+      content:
+        "An exploration of Orwell's masterpiece and its modern implications...",
+      user_id: "John Doe",
+      created_at: "2025-01-01",
+    },
+    {
+      id: 2,
+      title: "The Art of Reading Multiple Books",
+      body: "Tips and strategies for managing multiple reads simultaneously...",
+      user_id: "John Doe",
+      created_at: "2025-01-02",
+    },
+  ]);
   const [userInfo, setUserInfo] = useState(userInfoInitial);
   const [isEditing, setIsEditing] = useState(false);
-  const { useBookLists, useUserData, useFollowers } = useAuth();
+  const { useBookLists, useUserData, useFollowers, useBlogPosts, updateUserData, uploadProfilePicture } = useAuth();
   const { data: userData, error: userError } = useUserData();
-  const { data: bookData, error: bookError } = useBookLists();
+  const {
+    data: bookData,
+    reading_count,
+    read_count,
+    wishlist_count,
+    error: bookError,
+  } = useBookLists();
   const { data: followerData, error: followerError } = useFollowers();
+  const { data: blogData, error: blogError } = useBlogPosts();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -89,19 +117,18 @@ const ProfilePage = () => {
       // Placeholder for Supabase query to fetch books
       try {
         if (bookData) {
-          console.log(JSON.stringify(bookData));
-          if (bookData.readBooks.length > 0) {
-            setReadBooks(bookData.readBooks);
+          if (read_count > 0) {
+            setReadBooks(bookData.read_books);
           }
-          if (bookData.currentlyReading.length > 0) {
-            setCurrentlyReading(bookData.currentlyReading);
+          if (reading_count > 0) {
+            setCurrentlyReading(bookData.currently_reading);
           }
-          if (bookData.wishlistBooks.length > 0) {
-            setWishlistBooks(bookData.wishlistBooks);
+          if (wishlist_count > 0) {
+            setWishlistBooks(bookData.wishlist_books);
           }
         }
       } catch {
-        console.error(bookError);
+        console.error("Error:", bookError);
       }
     };
     fetchBooks();
@@ -118,17 +145,53 @@ const ProfilePage = () => {
       }
     };
     fetchFollowers();
-  }, [userData, bookData, followerData, userError, bookError, followerError]);
+
+    // Fetching blog posts
+    const fetchBlogPosts = async () => {
+      // Placeholder for Supabase query to fetch blog posts
+      try {
+        if (blogData) {
+          setUserBlogPosts(blogData);
+        }
+      } catch {
+        console.error(blogError);
+      }
+    };
+
+    fetchBlogPosts();
+  }, [
+    userData,
+    bookData,
+    followerData,
+    userError,
+    bookError,
+    followerError,
+    read_count,
+    reading_count,
+    wishlist_count,
+    blogData,
+    blogError
+  ]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUserInfo((prev) => ({ ...prev, [name]: value }));
+    setUserInfo((prev) => ({ ...prev, [name]: value, created_at: prev.created_at }));
   };
 
   const handleSave = async () => {
-    setIsEditing(false);
-    // Placeholder for Supabase query to save updated userInfo
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      setIsEditing(false);
+      // Update user info in Supabase
+      await updateUserData({
+        first_name: userInfo.first_name,
+        last_name: userInfo.last_name,
+        bio: userInfo.bio,
+        profile_picture: userInfo.profile_picture,
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Failed to update profile. Please try again.");
+    }
   };
 
   const handleEdit = () => {
@@ -151,23 +214,6 @@ const ProfilePage = () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     // Update state after removing book
   };
-
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Why '1984' Remains Relevant Today",
-      body: "An exploration of Orwell's masterpiece and its modern implications...",
-      author: "John Doe",
-      createdAt: "2025-01-01",
-    },
-    {
-      id: 2,
-      title: "The Art of Reading Multiple Books",
-      body: "Tips and strategies for managing multiple reads simultaneously...",
-      author: "John Doe",
-      createdAt: "2025-01-02",
-    },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -230,6 +276,31 @@ const ProfilePage = () => {
                         name="bio"
                         value={userInfo?.bio ? userInfo?.bio : ""}
                         onChange={handleInputChange}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Profile Picture
+                      </label>
+                      <input
+                        type="file"
+                        name="profile_picture"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            try {
+                              const publicUrl = await uploadProfilePicture(file);
+                              setUserInfo((prev) => ({
+                                ...prev,
+                                profile_picture: publicUrl,
+                              }));
+                            } catch (error) {
+                              console.error("Error uploading profile picture:", error);
+                            }
+                          }
+                        }}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
                       />
                     </div>
@@ -311,7 +382,7 @@ const ProfilePage = () => {
                     <BookOpenIcon className="w-5 h-5 text-teal-500 mr-2" />
                     <div>
                       <div className="text-2xl font-bold text-gray-900">
-                        {bookData?.readBooks?.length || 0}
+                        {read_count || 0}
                       </div>
                       <div className="text-sm text-gray-500">Books Read</div>
                     </div>
@@ -321,7 +392,7 @@ const ProfilePage = () => {
                     <ClockIcon className="w-5 h-5 text-teal-500 mr-2" />
                     <div>
                       <div className="text-2xl font-bold text-gray-900">
-                        {bookData?.currentlyReading?.length || 0}
+                        {reading_count || 0}
                       </div>
                       <div className="text-sm text-gray-500">Reading</div>
                     </div>
@@ -331,7 +402,7 @@ const ProfilePage = () => {
                     <HeartIcon className="w-5 h-5 text-teal-500 mr-2" />
                     <div>
                       <div className="text-2xl font-bold text-gray-900">
-                        {bookData?.wishlistBooks?.length || 0}
+                        {wishlist_count || 0}
                       </div>
                       <div className="text-sm text-gray-500">Wishlist</div>
                     </div>
@@ -366,7 +437,7 @@ const ProfilePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Currently Reading */}
               <div className="bg-white rounded-xl shadow-lg p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <h2 className="text-xl font-serif font-bold text-gray-900 mb-4 flex items-center">
                   <ClockIcon className="w-5 h-5 text-teal-500 mr-2" />
                   Currently Reading
                 </h2>
@@ -375,6 +446,7 @@ const ProfilePage = () => {
                     <BookCard
                       key={book.id}
                       book={book}
+                      list="currently_reading"
                       onMove={(target) =>
                         handleMoveBook(book.id, "currentlyReading", target)
                       }
@@ -397,6 +469,7 @@ const ProfilePage = () => {
                     <BookCard
                       key={book.id}
                       book={book}
+                      list="read_books"
                       onMove={(target) =>
                         handleMoveBook(book.id, "readBooks", target)
                       }
@@ -416,6 +489,7 @@ const ProfilePage = () => {
                     <BookCard
                       key={book.id}
                       book={book}
+                      list="wishlist_books"
                       onMove={(target) =>
                         handleMoveBook(book.id, "wishlistBooks", target)
                       }
@@ -436,51 +510,24 @@ const ProfilePage = () => {
                 Blog Posts
               </h2>
               <div className="space-y-6">
-                {blogPosts.map((post) => (
-                  <ContentCard key={post.id} content={post} type="blog" />
-                ))}
+                {userBlogPosts.length > 0 ? (
+                  userBlogPosts.map((post) => (
+                    <BlogPost key={post.id} post={post} />
+                  ))
+                ) : (
+                  <div className="bg-white rounded-lg p-6 shadow-md">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">
+                      No Posts Available
+                    </h2>
+                    <p className="text-gray-700">
+                      Looks like you haven't written any blog posts yet. Get started by sharing your thoughts on books!
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-};
-
-// Content Card Component
-const ContentCard = ({ content, type }) => {
-  const { title, body, author, rating, createdAt } = content;
-
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600 mb-4">{body}</p>
-
-      <div className="flex items-center justify-between text-sm text-gray-500">
-        <div className="flex items-center space-x-4">
-          <span className="flex items-center">
-            <UserCircleIcon className="w-4 h-4 mr-1" />
-            {author}
-          </span>
-          <span className="flex items-center">
-            <CalendarIcon className="w-4 h-4 mr-1" />
-            {new Date(createdAt).toLocaleDateString()}
-          </span>
-        </div>
-
-        {type === "review" && (
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <StarIcon
-                key={i}
-                className={`w-4 h-4 ${
-                  i < rating ? "text-teal-400" : "text-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

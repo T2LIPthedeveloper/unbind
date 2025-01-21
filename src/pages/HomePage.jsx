@@ -38,17 +38,19 @@ const UserHome = () => {
     wishlist_count,
   } = useBookLists();
 
-  const reading_books = data?.reading_books || [];
+  let reading_books = data?.reading_books || [];
 
   if (reading_books.length === 0) {
-    // add a placeholder book to reading_books
-    reading_books.push({
-      title: "No books currently being read",
-      image: "https://placehold.co/1000x1000?text=No+books+currently+being+read",
-      author: "Go read something!",
-      year_published: "2025",
-      link: "/books/OL244537W",
-    });
+    // add a placeholder book to reading_books without affecting read_count
+    reading_books = [
+      {
+        title: "No books currently being read",
+        image: "https://placehold.co/1000x1000?text=No+books+currently+being+read",
+        author: "Go read something!",
+        year_published: "2025",
+        link: "/books/OL244537W",
+      },
+    ];
   }
 
   const books = [

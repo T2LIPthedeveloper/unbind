@@ -15,6 +15,7 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext"; // Import useAuth and AuthProvider
 import FAQPage from "./pages/FAQPage";
 import BlogPage from "./pages/BlogPage";
+import SettingsPage from "./pages/SettingsPage";
 import { useEffect } from "react";
 
 function App() {
@@ -39,7 +40,8 @@ function App() {
 
           {/* Route requiring authentication */}
           <Route path="/" element={<Layout />}>
-            <Route path="/profile" element={<PrivateRoute />} />
+            <Route path="/profile" element={<ProfileRoute />} />
+            <Route path="/settings" element={<SettingsRoute />} />
           </Route>
 
           {/* Login route */}
@@ -55,7 +57,7 @@ function App() {
   );
 }
 
-function PrivateRoute() {
+function PrivateRoute({ children }) {
   const { user, loading, error } = useAuth();
 
   // While loading, we can render a loading indicator or a blank screen
@@ -73,8 +75,24 @@ function PrivateRoute() {
     return <Navigate to="/login" />;
   }
 
-  // If the user is authenticated, render the profile page
-  return <ProfilePage />;
+  // If the user is authenticated, render the children components
+  return children;
+}
+
+function ProfileRoute() {
+  return (
+    <PrivateRoute>
+      <ProfilePage />
+    </PrivateRoute>
+  );
+}
+
+function SettingsRoute() {
+  return (
+    <PrivateRoute>
+      <SettingsPage />
+    </PrivateRoute>
+  );
 }
 
 // PublicRoute will ensure that the login page is not accessible when the user is already authenticated

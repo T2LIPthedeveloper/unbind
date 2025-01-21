@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/20/solid";
+import { ArrowLeftStartOnRectangleIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 
 const ProfileDropdown = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [confirmLogout, setConfirmLogout] = useState(false);
-  const { signOut, useUserData } = useAuth();
-  const [profile_picture, setProfilePicture] = useState(
-    "https://placehold.co/150"
-  );
-  const { data } = useUserData();
+  const { signOut } = useAuth();
   const dropdownRef = useRef(null);
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
@@ -21,13 +17,6 @@ const ProfileDropdown = () => {
       setConfirmLogout(false); // Reset confirmLogout when clicking outside
     }
   };
-
-  useEffect(() => {
-    // Retrieve user profile picture
-    if (data && data.profile_picture) {
-      setProfilePicture(data.profile_picture);
-    }
-  }, [data]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -56,11 +45,7 @@ const ProfileDropdown = () => {
         onClick={toggleDropdown}
       >
         <span className="sr-only">Toggle dashboard menu</span>
-        <img
-          src={profile_picture}
-          alt="Profile"
-          className="w-10 h-10 rounded-full"
-        />
+        <UserCircleIcon className="w-10 h-10 text-gray-500" />
       </button>
 
       {/* Dropdown Menu */}
