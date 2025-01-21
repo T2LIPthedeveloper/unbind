@@ -130,11 +130,20 @@ export const AuthProvider = ({ children }) => {
     const fileExt = file.name.split(".").pop().toLowerCase();
     const fileName = `${user.user_metadata.username}.${fileExt}`;
     const filePath = `avatars/${fileName}`;
+    // If the user already has a profile picture, delete the existing file
+    if (user.profile_picture) {
+      const existingFileName = user.profile_picture.split("/").pop();
+      const existingFilePath = `avatars/${existingFileName}`;
+      await supabase.storage.from("avatars").remove([existingFilePath]);
 
-    // Upload file to Supabase Storage, replacing any existing file
+      // Delete the local URL to prevent memory leaks
+      const localUrl = URL.createObjectURL(file);
+      URL.revokeObjectURL(localUrl);
+    }
+    // Upload file to Supabase Storage, replacing any existing file  
     const { error } = await supabase.storage
       .from("avatars")
-      .upload(filePath, file, { upsert: true });
+      .upload(filePath, file, { cacheControl: "3600" });
 
     if (error) {
       throw new Error(`Failed to upload profile picture: ${error.message}`);

@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import SearchCard from "../components/search/SearchCard";
 import { useTrendingBooks, useSearchBooks } from "../lib/hooks/bookHooks";
+import { useAuth } from "../context/AuthContext";
+import SearchCardAnon from "../components/search/SearchCardAnon";
 
 const useQueryString = () => {
   return new URLSearchParams(useLocation().search);
@@ -13,7 +15,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-const SearchResults = ({ query, searchQuery }) => {
+const SearchResults = ({ query, searchQuery, logged_in }) => {
   const loadingRef = useRef(null);
   const { 
     data, 
@@ -67,10 +69,17 @@ const SearchResults = ({ query, searchQuery }) => {
               <React.Fragment key={i}>
                 {page.map((book) => (
                   <li key={book.key} className="shadow-3xl rounded-3xl">
-                    <SearchCard book={{
+                    {logged_in ? (
+                      <SearchCard book={{
                       ...book,
                       rating: book.rating ? book.rating : "No ratings",
                     }} />
+                  ) : (
+                    <SearchCardAnon book={{
+                      ...book,
+                      rating: book.rating ? book.rating : "No ratings",
+                    }} />
+                  )}
                   </li>
                 ))}
               </React.Fragment>
@@ -112,7 +121,7 @@ const Categories = ({ categories }) => (
   </ul>
 );
 
-const TrendingBooks = ({ trendingBooks, loading, error }) => (
+const TrendingBooks = ({ trendingBooks, loading, error, logged_in }) => (
   <div className="flex flex-col items-center justify-center w-full">
     <div className="flex flex-col items-center justify-center w-full border-double border-t-4 border-b-4 border-teal-500 bg-white p-4 my-4">
       <h2 className="text-2xl font-serif font-bold mx-4 px-4 py-2">
@@ -127,14 +136,28 @@ const TrendingBooks = ({ trendingBooks, loading, error }) => (
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 px-6 pb-6 my-2">
         {trendingBooks.map((book) => (
           <li key={book.link} className="shadow-3xl rounded-3xl">
-            <SearchCard book={{
-              title: book.title,
-              cover_i: book.image.replace("https://covers.openlibrary.org/b/id/", "").replace("-M.jpg", "") || "",
-              author: book.author,
-              year_published: book.year_published,
-              rating: book.rating || "No ratings",
-              key: book.link.replace("/books/", ""),
-            }} />
+            { 
+              logged_in ? (
+                <SearchCard book={{
+                  title: book.title,
+                  cover_i: book.image.replace("https://covers.openlibrary.org/b/id/", "").replace("-M.jpg", "") || "",
+                  author: book.author,
+                  year_published: book.year_published,
+                  rating: book.rating || "No ratings",
+                  key: book.link.replace("/books/", ""),
+                }} />
+              )
+              : (
+                <SearchCardAnon book={{
+                  title: book.title,
+                  cover_i: book.image.replace("https://covers.openlibrary.org/b/id/", "").replace("-M.jpg", "") || "",
+                  author: book.author,
+                  year_published: book.year_published,
+                  rating: book.rating || "No ratings",
+                  key: book.link.replace("/books/", ""),
+                }} />
+              )
+            }
           </li>
         ))}
       </ul>
@@ -150,7 +173,6 @@ const SearchPage = () => {
     isLoading: trendingLoading,
     error: trendingError,
   } = useTrendingBooks({ timeframe: "now" });
-
   const categories = [
     "Fiction",
     "Poetry",
@@ -159,6 +181,7 @@ const SearchPage = () => {
     "Adult",
     "Mystery",
   ];
+  const { user } = useAuth();
 
   return (
     <div className="search-page-container text-teal-900">
@@ -169,6 +192,7 @@ const SearchPage = () => {
         <SearchResults
           query={query}
           searchQuery={searchQuery}
+          logged_in={user? true : false}
         />
       ) : (
         <>
@@ -177,6 +201,7 @@ const SearchPage = () => {
             trendingBooks={trendingBooks || []}
             loading={trendingLoading}
             error={trendingError}
+            logged_in={user? true : false}
           />
         </>
       )}

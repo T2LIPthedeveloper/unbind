@@ -39,7 +39,11 @@ const SearchCard = ({ book }) => {
         const bookCode = book.key.replace("/works/", "");
         
         // Check each list for the book
-        for (const listType of lists) {
+        for (const listType of [
+          { id: 'currently_reading', name: 'Reading List', icon: '📖' },
+          { id: 'read_books', name: 'Completed List', icon: '✅' },
+          { id: 'wishlist_books', name: 'Wishlist', icon: '⭐' }
+        ]) {
           const listData = allLists[listType.id];
           const bookFound = listData?.some(item => item.book_code === bookCode);
           
